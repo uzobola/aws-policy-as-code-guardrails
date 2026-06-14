@@ -1,0 +1,53 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "aws_s3_bucket_acl.private",
+      "type": "aws_s3_bucket_acl",
+      "change": { "actions": ["create"], "after": { "acl": "private" } }
+    },
+    {
+      "address": "aws_s3_bucket_public_access_block.locked",
+      "type": "aws_s3_bucket_public_access_block",
+      "change": { "actions": ["create"], "after": {
+        "block_public_acls": true, "block_public_policy": true,
+        "ignore_public_acls": true, "restrict_public_buckets": true
+      } }
+    },
+    {
+      "address": "aws_security_group.restricted",
+      "type": "aws_security_group",
+      "change": { "actions": ["create"], "after": {
+        "tags": { "Owner": "team-platform" },
+        "ingress": [ { "from_port": 22, "to_port": 22, "protocol": "tcp", "cidr_blocks": ["10.0.0.0/8"] } ]
+      } }
+    },
+    {
+      "address": "aws_iam_policy.scoped",
+      "type": "aws_iam_policy",
+      "change": { "actions": ["create"], "after": {
+        "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\"],\"Resource\":\"arn:aws:s3:::reports/*\"}]}"
+      } }
+    },
+    {
+      "address": "aws_db_instance.main",
+      "type": "aws_db_instance",
+      "change": { "actions": ["create"], "after": { "storage_encrypted": true, "tags": { "Owner": "dba" } } }
+    },
+    {
+      "address": "aws_ebs_volume.data",
+      "type": "aws_ebs_volume",
+      "change": { "actions": ["create"], "after": { "encrypted": true } }
+    },
+    {
+      "address": "aws_s3_bucket.reports",
+      "type": "aws_s3_bucket",
+      "change": { "actions": ["create"], "after": { "tags": { "Owner": "team-data" } } }
+    },
+    {
+      "address": "aws_iam_role.app",
+      "type": "aws_iam_role",
+      "change": { "actions": ["create"], "after": { "tags": { "Owner": "team-sec" } } }
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # AWS Policy-as-Code Guardrails
 
+[![policy-check](https://github.com/uzobola/aws-policy-as-code-guardrails/actions/workflows/policy-check.yml/badge.svg)](https://github.com/uzobola/aws-policy-as-code-guardrails/actions/workflows/policy-check.yml)
+
 Preventive guardrails that evaluate a Terraform plan **before apply** and fail the
 build when a change would violate a security control. Written in OPA Rego, executed
 with Conftest, unit-tested with `opa test`, and enforced as a CI gate.
@@ -15,8 +17,8 @@ CI on policy violations and map findings to NIST 800-53.
 | Policy | Denies | NIST 800-53 |
 | --- | --- | --- |
 | `s3_public.rego` | Public S3 ACLs; public-access-block settings left open | SC-7, AC-6(10) |
-| `security_group.rego` | Security groups exposing port 22/3389 to `0.0.0.0/0` | SC-7 |
-| `iam_wildcard.rego` | IAM policies granting `Action:*` on `Resource:*` | AC-6(10) |
+| `security_group.rego` | Security groups exposing port 22/3389 to `0.0.0.0/0` or `::/0` (IPv6) | SC-7 |
+| `iam_wildcard.rego` | Customer-managed, role, and inline IAM policies granting `Action:*` on `Resource:*` | AC-6(10) |
 | `encryption.rego` | Unencrypted RDS storage and EBS volumes | SC-28 |
 | `tagging.rego` | Taggable resources missing a non-empty `Owner` tag | CM-8 |
 
@@ -64,5 +66,8 @@ guardrails both load and actually enforce.
 
 These are a focused starter set, not exhaustive coverage. They evaluate planned
 resource attributes from `terraform show -json`; resources whose values are only
-known after apply are not evaluated. The intent is a small, correct, tested set of
+known after apply are not evaluated. Managed-policy attachments
+(`aws_iam_role_policy_attachment`) reference a policy ARN whose document is not in
+the plan, so wildcard checks there are governed at the account level by the NHI
+engine rather than at plan time. The intent is a small, correct, tested set of
 controls that runs in CI, extended over time rather than padded.

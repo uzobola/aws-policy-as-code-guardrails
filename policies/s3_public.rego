@@ -6,6 +6,7 @@ import rego.v1
 
 deny contains msg if {
 	some rc in input.resource_changes
+	rc.change.after != null
 	rc.type == "aws_s3_bucket_acl"
 	acl := rc.change.after.acl
 	acl in {"public-read", "public-read-write", "authenticated-read"}
@@ -14,6 +15,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some rc in input.resource_changes
+	rc.change.after != null
 	rc.type == "aws_s3_bucket_public_access_block"
 	some setting in ["block_public_acls", "block_public_policy", "ignore_public_acls", "restrict_public_buckets"]
 	rc.change.after[setting] == false
